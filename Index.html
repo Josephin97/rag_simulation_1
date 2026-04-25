@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RAG Simulator</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .box { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    button { padding: 8px 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>RAG Simulator (Simple)</h2>
+
+<div class="box">
+  <h3>1. Input Data (PDF/API/Docs)</h3>
+  <textarea id="data" rows="4" cols="50">Cars are vehicles. Bikes are two-wheelers. AI is artificial intelligence.</textarea>
+</div>
+
+<div class="box">
+  <h3>2. Chunking</h3>
+  <button onclick="chunkData()">Split into Chunks</button>
+  <p id="chunks"></p>
+</div>
+
+<div class="box">
+  <h3>3. Convert to Embeddings (Simulated)</h3>
+  <button onclick="embedData()">Create Embeddings</button>
+  <p id="embeddings"></p>
+</div>
+
+<div class="box">
+  <h3>4. User Query</h3>
+  <input type="text" id="query" placeholder="Ask something..." />
+  <button onclick="search()">Search (Semantic Match)</button>
+</div>
+
+<div class="box">
+  <h3>5. Retrieved Chunks (Top Matches)</h3>
+  <p id="results"></p>
+</div>
+
+<div class="box">
+  <h3>6. Final LLM Output (Simulated)</h3>
+  <p id="output"></p>
+</div>
+
+<script>
+  let chunks = [];
+
+  function chunkData() {
+    let text = document.getElementById('data').value;
+    chunks = text.split('.').filter(c => c.trim() !== '');
+    document.getElementById('chunks').innerText = JSON.stringify(chunks);
+  }
+
+  function embedData() {
+    let embeddings = chunks.map(c => ({ text: c, vector: c.length }));
+    window.embeddings = embeddings;
+    document.getElementById('embeddings').innerText = JSON.stringify(embeddings);
+  }
+
+  function search() {
+    let query = document.getElementById('query').value;
+    let qLength = query.length;
+
+    let scored = window.embeddings.map(e => ({
+      text: e.text,
+      score: Math.abs(e.vector - qLength)
+    }));
+
+    scored.sort((a,b) => a.score - b.score);
+
+    let top = scored.slice(0,2);
+
+    document.getElementById('results').innerText = JSON.stringify(top);
+
+    let finalAnswer = "Answer based on context: " + top.map(t => t.text).join(', ');
+    document.getElementById('output').innerText = finalAnswer;
+  }
+</script>
+
+</body>
+</html>
